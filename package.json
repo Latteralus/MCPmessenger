@@ -1,0 +1,24 @@
+{
+  "name": "mcpmessenger",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1",
+    "sqlite3": "^5.1.7",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^35.0.1"
+  }
+}
