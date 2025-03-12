@@ -1,0 +1,25 @@
+# External Libraries
+
+This directory needs to include the following JavaScript libraries:
+
+1. `tweetnacl.min.js` - The TweetNaCl cryptographic library
+2. `tweetnacl-util.min.js` - Utility functions for TweetNaCl
+3. `socket.io.min.js` - Socket.IO client library
+
+You can download these libraries from:
+
+- TweetNaCl: https://github.com/dchest/tweetnacl-js/releases
+- TweetNaCl Util: https://github.com/dchest/tweetnacl-util-js/releases
+- Socket.IO: https://socket.io/docs/v4/client-installation/
+
+Or you can include them via npm (they are already in your package.json) and copy the files from node_modules.
+
+Example to copy them from node_modules:
+
+```bash
+# From project root:
+mkdir -p electron-client/renderer/assets/js
+cp node_modules/tweetnacl/nacl-fast.min.js electron-client/renderer/assets/js/tweetnacl.min.js
+cp node_modules/tweetnacl-util/nacl-util.min.js electron-client/renderer/assets/js/tweetnacl-util.min.js
+cp node_modules/socket.io-client/dist/socket.io.min.js electron-client/renderer/assets/js/socket.io.min.js
+```

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Messenger - Login</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>MCP Messenger</h1>
+            <h3>Secure Local Network Messaging</h3>
+            
+            <div id="login-error" class="error-message hidden"></div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" id="login-button">Login</button>
+                </div>
+            </form>
+            
+            <div class="login-footer">
+                <p>Contact your administrator if you need an account</p>
+                <p class="version-info">MCP Messenger v1.0.0</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key generation modal -->
+    <div id="key-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Generating Encryption Keys</h2>
+            <p>We need to generate encryption keys for your account. This will only happen once.</p>
+            <p>These keys will be stored securely on your computer and will be used to encrypt and decrypt your messages.</p>
+            <div class="progress-container">
+                <div id="key-progress" class="progress-bar"></div>
+            </div>
+            <p id="key-status">Initializing...</p>
+        </div>
+    </div>
+    
+    <script src="assets/js/tweetnacl.min.js"></script>
+    <script src="assets/js/tweetnacl-util.min.js"></script>
+    <script src="assets/js/login.js"></script>
+</body>
+</html>

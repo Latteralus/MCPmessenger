@@ -1,17 +1,26 @@
 {
   "name": "mcpmessenger",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "electron-client/main.js",
   "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run electron\"",
+    "server": "node server/index.js",
+    "electron": "electron .",
+    "server:dev": "nodemon server/index.js",
+    "start:dev": "concurrently \"npm run server:dev\" \"npm run electron\"",
+    "test-server": "node server/index.js",
+    "test-client": "concurrently \"npm run test-server\" \"npm run electron\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Self-hosted, offline messenger with E2EE for local networks",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "socket.io": "^4.8.1",
     "sqlite3": "^5.1.7",
     "tweetnacl": "^1.0.3",
@@ -19,6 +28,7 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
-    "electron": "^35.0.1"
+    "electron": "^35.0.1",
+    "nodemon": "^3.1.0"
   }
 }

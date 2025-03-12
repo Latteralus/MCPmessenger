@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Messenger - Chat</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>MCP Messenger</h2>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="user-info">
+                    <div class="username" id="current-username">Loading...</div>
+                    <div class="status">
+                        <span class="status-indicator online"></span>
+                        <span>Online</span>
+                    </div>
+                </div>
+                
+                <!-- Contacts list -->
+                <div class="contact-list-header">
+                    <span>Direct Messages</span>
+                </div>
+                <ul class="contact-list" id="contact-list">
+                    <li class="contact-item loading">Loading contacts...</li>
+                </ul>
+                
+                <!-- Groups list -->
+                <div class="group-list-header">
+                    <span>Group Chats</span>
+                    <button id="create-group-btn" class="btn-icon">+</button>
+                </div>
+                <ul class="group-list" id="group-list">
+                    <li class="group-item loading">Loading groups...</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main content area -->
+        <div class="main-content">
+            <!-- Initial welcome screen -->
+            <div id="welcome-screen">
+                <div class="welcome-content">
+                    <h1>Welcome to MCP Messenger</h1>
+                    <p>Select a contact or group to start chatting</p>
+                </div>
+            </div>
+            
+            <!-- Chat interface (initially hidden) -->
+            <div id="chat-interface" class="hidden">
+                <div class="chat-header">
+                    <h2 id="chat-title">Chat Title</h2>
+                    <div id="chat-info"></div>
+                </div>
+                
+                <div class="messages-container" id="messages-container">
+                    <!-- Messages will be dynamically inserted here -->
+                </div>
+                
+                <div class="message-input">
+                    <input type="text" id="message-input" placeholder="Type a message...">
+                    <button id="send-button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Group Modal -->
+    <div id="create-group-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Create New Group</h2>
+            <div id="group-error" class="error-message hidden"></div>
+            
+            <form id="create-group-form">
+                <div class="form-group">
+                    <label for="group-name">Group Name</label>
+                    <input type="text" id="group-name" name="group-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Members</label>
+                    <div id="group-members-list" class="checkbox-list">
+                        <!-- Contacts will be dynamically inserted here as checkboxes -->
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="cancel-create-group" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" id="create-group-submit" class="btn btn-primary">Create Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="assets/js/tweetnacl.min.js"></script>
+    <script src="assets/js/tweetnacl-util.min.js"></script>
+    <script src="assets/js/socket.io.min.js"></script>
+    <script src="assets/js/chat.js"></script>
+</body>
+</html>

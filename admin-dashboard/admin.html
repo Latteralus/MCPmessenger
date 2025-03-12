@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Messenger - Admin Dashboard</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="login-container" id="login-container">
+        <div class="login-box">
+            <h1>Admin Dashboard</h1>
+            <h3>MCP Messenger</h3>
+            
+            <div id="login-error" class="error-message hidden"></div>
+            
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" id="login-button">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="admin-container hidden" id="admin-container">
+        <div class="admin-header">
+            <h1>MCP Messenger Admin Dashboard</h1>
+            <button id="logout-button" class="btn btn-secondary">Logout</button>
+        </div>
+        
+        <div class="admin-tabs">
+            <div class="admin-tab active" data-tab="users">Users</div>
+            <div class="admin-tab" data-tab="groups">Groups</div>
+        </div>
+        
+        <div class="admin-content">
+            <!-- Users Tab -->
+            <div class="tab-content active" id="users-tab">
+                <div class="content-header">
+                    <h2>User Management</h2>
+                    <button id="create-user-btn" class="btn btn-primary">Create User</button>
+                </div>
+                
+                <table class="admin-table" id="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Admin</th>
+                            <th>Has Key</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6">Loading users...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Groups Tab -->
+            <div class="tab-content" id="groups-tab">
+                <div class="content-header">
+                    <h2>Group Management</h2>
+                </div>
+                
+                <table class="admin-table" id="groups-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Created By</th>
+                            <th>Members</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6">Loading groups...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Modal -->
+    <div id="user-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="user-modal-title">Create User</h2>
+            <div id="user-error" class="error-message hidden"></div>
+            
+            <form id="user-form">
+                <input type="hidden" id="user-id">
+                
+                <div class="form-row">
+                    <label for="user-username">Username</label>
+                    <input type="text" id="user-username" name="username" required>
+                </div>
+                
+                <div class="form-row">
+                    <label for="user-password">Password</label>
+                    <input type="password" id="user-password" name="password">
+                    <small class="form-hint">Leave blank to keep current password (when editing)</small>
+                </div>
+                
+                <div class="form-row checkbox-row">
+                    <input type="checkbox" id="user-admin" name="isAdmin">
+                    <label for="user-admin">Admin privileges</label>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="cancel-user-modal" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Group Members Modal -->
+    <div id="members-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Group Members</h2>
+            <h3 id="group-name-title"></h3>
+            
+            <table class="admin-table" id="members-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="3">Loading members...</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="form-actions">
+                <button type="button" id="close-members-modal" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Confirm Action</h2>
+            <p id="confirm-message">Are you sure you want to proceed?</p>
+            
+            <div class="form-actions">
+                <button type="button" id="cancel-confirm" class="btn btn-secondary">Cancel</button>
+                <button type="button" id="confirm-action" class="btn btn-danger">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About MCP Messenger</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .version {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 20px;
+        }
+        .description {
+            margin-bottom: 20px;
+        }
+        .tech-info {
+            font-size: 12px;
+            color: #555;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">MCP Messenger</div>
+    <div class="version">Version 1.0.0</div>
+    
+    <div class="description">
+        A secure, self-hosted messenger for local networks with end-to-end encryption.
+    </div>
+    
+    <div class="tech-info">
+        <p>Powered by Electron, Node.js, and TweetNaCl.js</p>
+        <p>
+            Node.js: <span id="node-version"></span> | 
+            Chrome: <span id="chrome-version"></span> | 
+            Electron: <span id="electron-version"></span>
+        </p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Display version information
+            document.getElementById('node-version').textContent = window.versions.node();
+            document.getElementById('chrome-version').textContent = window.versions.chrome();
+            document.getElementById('electron-version').textContent = window.versions.electron();
+        });
+    </script>
+</body>
+</html>

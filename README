@@ -1,0 +1,103 @@
+# MCP Messenger
+
+A secure, self-hosted messenger for local networks with end-to-end encryption.
+
+## Features
+
+- **End-to-End Encryption**: All messages are encrypted using TweetNaCl.js for secure communications
+- **One-on-One Messaging**: Direct messaging between two users
+- **Group Chats**: Create and participate in multi-user chat sessions
+- **Admin Dashboard**: Web-based interface for managing users and groups
+- **Desktop Client**: Electron-based application with native notifications
+- **Offline Use**: Designed for local network use without internet requirement
+
+## Prerequisites
+
+- Node.js (v14+)
+- npm
+- SQLite
+
+## Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/mcpmessenger.git
+   cd mcpmessenger
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Start the application:
+   ```
+   npm start
+   ```
+
+This will start both the server and the Electron client.
+
+## Project Structure
+
+```
+project-root/
+├── server/                      // Backend server
+│   ├── index.js                 // Entry point for Express server
+│   ├── config/                  // Configuration
+│   ├── routes/                  // API endpoints
+│   └── database/                // SQLite database
+│
+├── electron-client/             // Desktop application
+│   ├── main.js                  // Electron main process
+│   ├── preload.js               // Preload script
+│   └── renderer/                // UI components
+│
+├── admin-dashboard/             // Web-based admin interface
+│   ├── admin.html               // Admin dashboard HTML
+│   ├── admin.js                 // Admin dashboard JavaScript
+│   └── admin.css                // Admin dashboard styles
+│
+└── README.md                    // Project documentation
+```
+
+## Usage
+
+### Server
+
+The server runs on port 3000 by default. You can change this in the `server/config/config.js` file.
+
+### Electron Client
+
+The Electron client connects to the server on localhost:3000 by default. This can be changed in the `electron-client/preload.js` file.
+
+### Admin Dashboard
+
+Access the admin dashboard by opening `admin-dashboard/admin.html` in a web browser.
+
+## Default Admin Account
+
+When first started, the system creates a default admin account:
+
+- Username: `admin`
+- Password: `admin123`
+
+**Important:** Change this password after first login for security!
+
+## Development
+
+For development, you can run the server and client separately:
+
+- Run server in development mode: `npm run server:dev`
+- Run Electron client: `npm run electron`
+- Run both in development mode: `npm run start:dev`
+
+## Security Considerations
+
+- This application is designed for use on trusted local networks only
+- All messages are encrypted end-to-end, but metadata is not encrypted
+- Keys are stored locally on each user's machine
+- The default admin password should be changed immediately after installation
+
+## License
+
+[ISC License](LICENSE)
