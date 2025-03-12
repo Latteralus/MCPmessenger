@@ -10,7 +10,11 @@
     "start:dev": "concurrently \"npm run server:dev\" \"npm run electron\"",
     "test-server": "node server/index.js",
     "test-client": "concurrently \"npm run test-server\" \"npm run electron\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +33,37 @@
   "devDependencies": {
     "concurrently": "^9.1.2",
     "electron": "^35.0.1",
+    "electron-builder": "^25.1.8",
     "nodemon": "^3.1.0"
+  },
+  "build": {
+    "appId": "com.mcpmessenger.app",
+    "productName": "MCP Messenger",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron-client/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "electron-client/renderer",
+        "to": "renderer",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "electron-client/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "electron-client/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "electron-client/icon.png"
+    }
   }
 }

@@ -1,0 +1,24 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.mcpmessenger.app
+productName: MCP Messenger
+files:
+  - filter:
+      - electron-client/**/*
+      - package.json
+extraResources:
+  - from: electron-client/renderer
+    to: renderer
+    filter:
+      - '**/*'
+win:
+  target: nsis
+  icon: electron-client/icon.ico
+mac:
+  target: dmg
+  icon: electron-client/icon.icns
+linux:
+  target: AppImage
+  icon: electron-client/icon.png
+electronVersion: 35.0.1
