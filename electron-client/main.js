@@ -21,10 +21,26 @@ if (!fs.existsSync(keyStoragePath)) {
 }
 
 function createMainWindow() {
+  // Try to restore previous window size if available
+  let windowSettings = {
+    width: 1024,
+    height: 768
+  };
+
+  try {
+    const savedSettings = JSON.parse(localStorage.getItem('windowSettings') || '{}');
+    if (savedSettings.width && savedSettings.height) {
+      windowSettings.width = savedSettings.width;
+      windowSettings.height = savedSettings.height;
+    }
+  } catch (error) {
+    console.error('Error loading saved window settings:', error);
+  }
+
   // Create the browser window
   mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 768,
+    width: windowSettings.width,
+    height: windowSettings.height,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -39,6 +55,16 @@ function createMainWindow() {
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
   }
+
+  // Handle window resizing and save dimensions
+  mainWindow.on('resize', () => {
+    const { width, height } = mainWindow.getBounds();
+    try {
+      localStorage.setItem('windowSettings', JSON.stringify({ width, height }));
+    } catch (error) {
+      console.error('Error saving window settings:', error);
+    }
+  });
 
   // Create application menu
   const template = [
@@ -98,7 +124,8 @@ function createMainWindow() {
               resizable: false,
               webPreferences: {
                 nodeIntegration: false,
-                contextIsolation: true
+                contextIsolation: true,
+                preload: path.join(__dirname, 'preload.js')
               }
             });
             aboutWindow.loadFile(path.join(__dirname, 'renderer', 'about.html'));

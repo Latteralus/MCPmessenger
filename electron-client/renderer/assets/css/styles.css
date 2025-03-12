@@ -1,7 +1,37 @@
 /* electron-client/renderer/assets/css/styles.css */
 
-/* Global styles */
-* {
+:root {
+    /* Light theme (default) */
+    --bg-color: #f4f4f4;
+    --text-color: #333;
+    --sidebar-bg: #2c3e50;
+    --sidebar-text: white;
+    --message-bg-sent: #3498db;
+    --message-bg-received: white;
+    --message-text-sent: white;
+    --message-text-received: #333;
+    --input-bg: white;
+    --header-bg: white;
+    --border-color: #ddd;
+  }
+  
+  body.dark-theme {
+    /* Dark theme */
+    --bg-color: #1a1a1a;
+    --text-color: #f0f0f0;
+    --sidebar-bg: #1f2937;
+    --sidebar-text: #f0f0f0;
+    --message-bg-sent: #2563eb;
+    --message-bg-received: #374151;
+    --message-text-sent: white;
+    --message-text-received: #f0f0f0;
+    --input-bg: #2d3748;
+    --header-bg: #111827;
+    --border-color: #4b5563;
+  }
+  
+  /* Global styles */
+  * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -10,8 +40,8 @@
   body {
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f4f4f4;
+    color: var(--text-color);
+    background-color: var(--bg-color);
     height: 100vh;
     overflow: hidden;
   }
@@ -39,7 +69,7 @@
   }
   
   .login-box {
-    background: white;
+    background: var(--header-bg);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 2rem;
@@ -73,9 +103,11 @@
   .form-group input {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
+    background-color: var(--input-bg);
+    color: var(--text-color);
   }
   
   .form-group button {
@@ -134,12 +166,13 @@
   }
   
   .modal-content {
-    background: white;
+    background: var(--header-bg);
     border-radius: 8px;
     padding: 2rem;
     max-width: 500px;
     width: 100%;
     text-align: center;
+    color: var(--text-color);
   }
   
   .progress-container {
@@ -165,8 +198,8 @@
   
   .sidebar {
     width: 250px;
-    background: #2c3e50;
-    color: white;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -176,6 +209,23 @@
     padding: 1rem;
     background: #1a252f;
     border-bottom: 1px solid #34495e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+  }
+  
+  .theme-switch {
+    margin-right: 5px;
+  }
+  
+  .theme-label {
+    font-size: 0.8rem;
+    white-space: nowrap;
   }
   
   .sidebar-content {
@@ -206,9 +256,12 @@
   }
   
   .contact-item, .group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 0.75rem 1rem;
     cursor: pointer;
-    border-bottom: 1px solid #34495e;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     transition: background 0.2s;
   }
   
@@ -220,6 +273,59 @@
     background: #3498db;
   }
   
+  .contact-info {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .contact-name {
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  
+  .message-preview {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .contact-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 60px;
+  }
+  
+  .timestamp {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 4px;
+  }
+  
+  .unread-badge {
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    margin-left: 8px;
+  }
+  
+  .contact-item.unread .contact-name {
+    font-weight: bold;
+  }
+  
+  .contact-item.unread .message-preview {
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
   .main-content {
     flex: 1;
     display: flex;
@@ -229,8 +335,8 @@
   
   .chat-header {
     padding: 1rem;
-    background: white;
-    border-bottom: 1px solid #ddd;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -244,7 +350,7 @@
     flex: 1;
     overflow-y: auto;
     padding: 1rem;
-    background: #ecf0f1;
+    background: var(--bg-color);
   }
   
   .message {
@@ -254,18 +360,25 @@
   
   .message.sent {
     margin-left: auto;
-    background: #3498db;
-    color: white;
+    background: var(--message-bg-sent);
+    color: var(--message-text-sent);
     border-radius: 8px 8px 0 8px;
     padding: 0.75rem;
   }
   
   .message.received {
     margin-right: auto;
-    background: white;
+    background: var(--message-bg-received);
+    color: var(--message-text-received);
     border-radius: 8px 8px 8px 0;
     padding: 0.75rem;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .message-sender {
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
   }
   
   .message-meta {
@@ -280,18 +393,20 @@
   
   .message-input {
     padding: 1rem;
-    background: white;
-    border-top: 1px solid #ddd;
+    background: var(--header-bg);
+    border-top: 1px solid var(--border-color);
     display: flex;
   }
   
   .message-input input {
     flex: 1;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
     margin-right: 0.5rem;
+    background-color: var(--input-bg);
+    color: var(--text-color);
   }
   
   .message-input button {
@@ -329,7 +444,7 @@
   .admin-tabs {
     display: flex;
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
   }
   
   .admin-tab {
@@ -345,7 +460,7 @@
   }
   
   .admin-content {
-    background: white;
+    background: var(--header-bg);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
@@ -360,11 +475,11 @@
   .admin-table td {
     padding: 0.75rem;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
   }
   
   .admin-table th {
-    background: #f4f4f4;
+    background: var(--bg-color);
     font-weight: bold;
   }
   
@@ -409,4 +524,138 @@
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
+  }
+  
+  /* Status indicators */
+  .status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+  
+  .status-indicator.online {
+    background-color: #2ecc71;
+  }
+  
+  .status-indicator.offline {
+    background-color: #95a5a6;
+  }
+  
+  .status-indicator.secure {
+    background-color: #2ecc71;
+  }
+  
+  .status-indicator.insecure {
+    background-color: #e74c3c;
+  }
+  
+  /* Welcome screen */
+  .welcome-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .welcome-content h1 {
+    margin-bottom: 1rem;
+  }
+  
+  /* Loading and empty states */
+  .loading-messages, .no-messages, .error-messages {
+    text-align: center;
+    padding: 2rem;
+    color: #7f8c8d;
+  }
+  
+  .btn-icon {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .btn-icon:hover {
+    color: #3498db;
+  }
+  
+  /* Checkbox list for group creation */
+  .checkbox-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .checkbox-item {
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .checkbox-item input {
+    margin-right: 0.5rem;
+  }
+  
+  /* Responsive Breakpoints */
+  @media (max-width: 768px) {
+    /* Tablet and smaller */
+    .app-container {
+      flex-direction: column;
+    }
+    
+    .sidebar {
+      width: 100%;
+      height: 200px;
+      overflow-y: auto;
+    }
+    
+    .main-content {
+      height: calc(100vh - 200px);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    /* Mobile */
+    .message {
+      max-width: 85%;
+    }
+    
+    .chat-header {
+      padding: 0.5rem;
+    }
+    
+    .message-input {
+      padding: 0.5rem;
+    }
+    
+    .message-input input {
+      padding: 0.5rem;
+    }
+  }
+  
+  /* Responsive font sizes */
+  @media (max-width: 1024px) {
+    html {
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    html {
+      font-size: 12px;
+    }
   }

@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const createGroupForm = document.getElementById('create-group-form');
     const groupMembersList = document.getElementById('group-members-list');
     const cancelCreateGroup = document.getElementById('cancel-create-group');
+    const themeSwitch = document.getElementById('theme-switch');
   
     // Check if user is logged in
     const token = localStorage.getItem('token');
@@ -41,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
       publicKey: null
     };
     let contactPublicKeys = {}; // Maps user IDs to their public keys
+    let unreadMessages = {}; // Maps contact IDs to unread message counts
+    let contactMessages = {}; // Maps contact IDs to arrays of messages
   
     // Initialize the chat application
     async function initialize() {
@@ -57,13 +60,43 @@ document.addEventListener('DOMContentLoaded', () => {
           loadGroups()
         ]);
         
+        // Initialize unread messages tracking
+        window.unreadMessages = JSON.parse(localStorage.getItem('unreadMessages') || '{}');
+        window.contactMessages = JSON.parse(localStorage.getItem('contactMessages') || '{}');
+        
         // Set up event listeners
         setupEventListeners();
+        
+        // Initialize theme
+        initializeTheme();
         
       } catch (error) {
         console.error('Initialization error:', error);
         alert('Failed to initialize chat: ' + error.message);
       }
+    }
+    
+    // Initialize theme settings
+    function initializeTheme() {
+      // Check if user has a saved preference
+      const savedTheme = localStorage.getItem('theme');
+      
+      // Set initial state based on saved preference
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        themeSwitch.checked = true;
+      }
+      
+      // Listen for theme toggle changes
+      themeSwitch.addEventListener('change', function() {
+        if (this.checked) {
+          document.body.classList.add('dark-theme');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          document.body.classList.remove('dark-theme');
+          localStorage.setItem('theme', 'light');
+        }
+      });
     }
   
     // Load user's encryption keys from disk
@@ -111,9 +144,38 @@ document.addEventListener('DOMContentLoaded', () => {
             // If we're currently chatting with the sender, decrypt and display the message
             const decryptedContent = decryptMessage(message.encrypted_content, message.sender_id);
             addMessageToUI(message.sender_id, decryptedContent, new Date(message.timestamp), false);
+            
+            // Save the message
+            saveMessage(message.sender_id, {
+              sender_id: message.sender_id,
+              content: decryptedContent,
+              timestamp: message.timestamp,
+              isFromMe: false
+            });
+            
+            // Mark as read since we're in this chat
+            markAsRead(message.sender_id);
           } else {
-            // Otherwise, show a notification
-            showMessageNotification(message);
+            // Otherwise, increment unread count and show notification
+            try {
+              const decryptedContent = decryptMessage(message.encrypted_content, message.sender_id);
+              
+              // Save the message
+              saveMessage(message.sender_id, {
+                sender_id: message.sender_id,
+                content: decryptedContent,
+                timestamp: message.timestamp,
+                isFromMe: false
+              });
+              
+              incrementUnreadCount(message.sender_id);
+              showMessageNotification(message, decryptedContent);
+              
+              // Update UI to show new unread count
+              updateContactListUI();
+            } catch (error) {
+              console.error('Error processing new message:', error);
+            }
           }
         });
         
@@ -125,9 +187,35 @@ document.addEventListener('DOMContentLoaded', () => {
             // For group messages, we need to know who sent it to decrypt
             const decryptedContent = decryptMessage(message.encrypted_content, message.sender_id);
             addMessageToUI(message.sender_id, decryptedContent, new Date(message.timestamp), false);
+            
+            // Save the message
+            saveMessage(`group_${message.group_id}`, {
+              sender_id: message.sender_id,
+              content: decryptedContent,
+              timestamp: message.timestamp,
+              isFromMe: message.sender_id === user.id
+            });
           } else {
-            // Otherwise, show a notification
-            showMessageNotification(message);
+            // Otherwise, increment unread count and show notification
+            try {
+              const decryptedContent = decryptMessage(message.encrypted_content, message.sender_id);
+              
+              // Save the message
+              saveMessage(`group_${message.group_id}`, {
+                sender_id: message.sender_id,
+                content: decryptedContent,
+                timestamp: message.timestamp,
+                isFromMe: message.sender_id === user.id
+              });
+              
+              incrementUnreadCount(`group_${message.group_id}`);
+              showMessageNotification(message, decryptedContent);
+              
+              // Update UI to show new unread count
+              updateGroupListUI();
+            } catch (error) {
+              console.error('Error processing new group message:', error);
+            }
           }
         });
         
@@ -241,16 +329,35 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       
-      const html = contacts.map(contact => `
-        <li class="contact-item" data-id="${contact.id}" data-type="direct">
-          <div class="contact-name">${contact.username}</div>
-          <div class="contact-status">
-            ${contact.has_key ? 
-              '<span class="status-indicator secure" title="Encrypted messaging enabled"></span>' : 
-              '<span class="status-indicator insecure" title="Contact has not set up encryption"></span>'}
-          </div>
-        </li>
-      `).join('');
+      const html = contacts.map(contact => {
+        // Get last message for preview
+        const lastMessage = getLastMessage(contact.id) || { content: '', timestamp: null };
+        const previewText = lastMessage.content ? truncateText(lastMessage.content, 30) : 'No messages yet';
+        const timeString = lastMessage.timestamp ? formatTimeAgo(new Date(lastMessage.timestamp)) : '';
+        
+        // Get unread count
+        const unreadCount = getUnreadCount(contact.id);
+        const unreadBadge = unreadCount > 0 ? 
+          `<span class="unread-badge">${unreadCount > 99 ? '99+' : unreadCount}</span>` : '';
+        
+        return `
+          <li class="contact-item ${unreadCount > 0 ? 'unread' : ''}" data-id="${contact.id}" data-type="direct">
+            <div class="contact-info">
+              <div class="contact-name">${contact.username}</div>
+              <div class="message-preview">${previewText}</div>
+            </div>
+            <div class="contact-meta">
+              ${timeString ? `<div class="timestamp">${timeString}</div>` : ''}
+              ${unreadBadge}
+              <div class="contact-status">
+                ${contact.has_key ? 
+                  '<span class="status-indicator secure" title="Encrypted messaging enabled"></span>' : 
+                  '<span class="status-indicator insecure" title="Contact has not set up encryption"></span>'}
+              </div>
+            </div>
+          </li>
+        `;
+      }).join('');
       
       contactList.innerHTML = html;
       
@@ -267,11 +374,31 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       
-      const html = groups.map(group => `
-        <li class="group-item" data-id="${group.id}" data-type="group">
-          <div class="group-name">${group.name}</div>
-        </li>
-      `).join('');
+      const html = groups.map(group => {
+        // Get last message for preview
+        const groupId = `group_${group.id}`;
+        const lastMessage = getLastMessage(groupId) || { content: '', timestamp: null };
+        const previewText = lastMessage.content ? truncateText(lastMessage.content, 30) : 'No messages yet';
+        const timeString = lastMessage.timestamp ? formatTimeAgo(new Date(lastMessage.timestamp)) : '';
+        
+        // Get unread count
+        const unreadCount = getUnreadCount(groupId);
+        const unreadBadge = unreadCount > 0 ? 
+          `<span class="unread-badge">${unreadCount > 99 ? '99+' : unreadCount}</span>` : '';
+        
+        return `
+          <li class="group-item ${unreadCount > 0 ? 'unread' : ''}" data-id="${group.id}" data-type="group">
+            <div class="contact-info">
+              <div class="contact-name">${group.name}</div>
+              <div class="message-preview">${previewText}</div>
+            </div>
+            <div class="contact-meta">
+              ${timeString ? `<div class="timestamp">${timeString}</div>` : ''}
+              ${unreadBadge}
+            </div>
+          </li>
+        `;
+      }).join('');
       
       groupList.innerHTML = html;
       
@@ -318,6 +445,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       contactItem.classList.add('active');
       
+      // Mark messages as read
+      markAsRead(contactId);
+      
       // Load the conversation history
       await loadDirectMessages(contactId);
     }
@@ -335,6 +465,9 @@ document.addEventListener('DOMContentLoaded', () => {
         item.classList.remove('active');
       });
       groupItem.classList.add('active');
+      
+      // Mark messages as read
+      markAsRead(`group_${groupId}`);
       
       // Load the group chat history
       await loadGroupMessages(groupId);
@@ -381,50 +514,101 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show loading indicator
         messagesContainer.innerHTML = '<div class="loading-messages">Loading messages...</div>';
         
-        const response = await fetch(`${window.serverConfig.baseUrl}/api/messages/direct/${contactId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to load messages');
-        }
-        
-        const messages = await response.json();
-        
-        // Clear container
-        messagesContainer.innerHTML = '';
-        
-        if (messages.length === 0) {
-          messagesContainer.innerHTML = '<div class="no-messages">No messages yet. Send the first message!</div>';
-          return;
-        }
-        
-        // Display messages
-        messages.forEach(message => {
-          const isFromMe = message.sender_id === user.id;
-          const senderId = isFromMe ? user.id : contactId;
-          let content;
+        // Check if we have cached messages
+        let messages = [];
+        if (contactMessages[contactId] && contactMessages[contactId].length > 0) {
+          // Use cached messages
+          messages = contactMessages[contactId];
+          renderMessages(messages);
+        } else {
+          // Fetch from server
+          const response = await fetch(`${window.serverConfig.baseUrl}/api/messages/direct/${contactId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
           
-          try {
-            content = decryptMessage(message.encrypted_content, senderId);
-          } catch (error) {
-            console.error('Error decrypting message:', error);
-            content = '[Encrypted message - unable to decrypt]';
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to load messages');
           }
           
-          addMessageToUI(senderId, content, new Date(message.timestamp), isFromMe);
-        });
-        
-        // Scroll to bottom
-        scrollToBottom();
-        
+          const serverMessages = await response.json();
+          
+          // Clear container
+          messagesContainer.innerHTML = '';
+          
+          if (serverMessages.length === 0) {
+            messagesContainer.innerHTML = '<div class="no-messages">No messages yet. Send the first message!</div>';
+            return;
+          }
+          
+          // Process and display messages
+          for (const message of serverMessages) {
+            const isFromMe = message.sender_id === user.id;
+            const senderId = isFromMe ? user.id : contactId;
+            let content;
+            
+            try {
+              content = decryptMessage(message.encrypted_content, senderId);
+              
+              // Save the processed message
+              const processedMessage = {
+                id: message.id,
+                sender_id: senderId,
+                content: content,
+                timestamp: message.timestamp,
+                isFromMe: isFromMe
+              };
+              
+              // Add to messages array for display
+              messages.push(processedMessage);
+              
+              // Save to contact messages
+              if (!contactMessages[contactId]) {
+                contactMessages[contactId] = [];
+              }
+              contactMessages[contactId].push(processedMessage);
+            } catch (error) {
+              console.error('Error decrypting message:', error);
+              content = '[Encrypted message - unable to decrypt]';
+            }
+          }
+          
+          // Save contact messages to localStorage
+          saveContactMessages();
+          
+          // Render messages
+          renderMessages(messages);
+        }
       } catch (error) {
         console.error('Error loading direct messages:', error);
         messagesContainer.innerHTML = `<div class="error-messages">Error: ${error.message}</div>`;
       }
+    }
+    
+    // Render messages in UI
+    function renderMessages(messages) {
+      // Clear container
+      messagesContainer.innerHTML = '';
+      
+      if (messages.length === 0) {
+        messagesContainer.innerHTML = '<div class="no-messages">No messages yet. Send the first message!</div>';
+        return;
+      }
+      
+      // Display messages
+      messages.forEach(message => {
+        addMessageToUI(
+          message.sender_id, 
+          message.content, 
+          new Date(message.timestamp), 
+          message.isFromMe
+        );
+      });
+      
+      // Scroll to bottom
+      scrollToBottom();
     }
   
     // Load group message history
@@ -433,55 +617,83 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show loading indicator
         messagesContainer.innerHTML = '<div class="loading-messages">Loading messages...</div>';
         
-        const response = await fetch(`${window.serverConfig.baseUrl}/api/messages/group/${groupId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to load group messages');
-        }
-        
-        const messages = await response.json();
-        
-        // Clear container
-        messagesContainer.innerHTML = '';
-        
-        if (messages.length === 0) {
-          messagesContainer.innerHTML = '<div class="no-messages">No messages in this group yet. Send the first message!</div>';
-          return;
-        }
-        
-        // Display messages
-        for (const message of messages) {
-          const isFromMe = message.sender_id === user.id;
+        // Check if we have cached messages
+        const groupChatId = `group_${groupId}`;
+        let messages = [];
+        if (contactMessages[groupChatId] && contactMessages[groupChatId].length > 0) {
+          // Use cached messages
+          messages = contactMessages[groupChatId];
+          renderMessages(messages);
+        } else {
+          // Fetch from server
+          const response = await fetch(`${window.serverConfig.baseUrl}/api/messages/group/${groupId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
           
-          // For each message, make sure we have the sender's public key
-          try {
-            if (!isFromMe && !contactPublicKeys[message.sender_id]) {
-              await loadContactPublicKey(message.sender_id);
-            }
-            
-            let content;
-            try {
-              content = decryptMessage(message.encrypted_content, message.sender_id);
-            } catch (error) {
-              console.error('Error decrypting group message:', error);
-              content = '[Encrypted message - unable to decrypt]';
-            }
-            
-            addMessageToUI(message.sender_id, content, new Date(message.timestamp), isFromMe);
-          } catch (error) {
-            console.error('Error processing group message:', error);
-            // Continue with next message
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to load group messages');
           }
+          
+          const serverMessages = await response.json();
+          
+          // Clear container
+          messagesContainer.innerHTML = '';
+          
+          if (serverMessages.length === 0) {
+            messagesContainer.innerHTML = '<div class="no-messages">No messages in this group yet. Send the first message!</div>';
+            return;
+          }
+          
+          // Process and display messages
+          for (const message of serverMessages) {
+            const isFromMe = message.sender_id === user.id;
+            
+            // For each message, make sure we have the sender's public key
+            try {
+              if (!isFromMe && !contactPublicKeys[message.sender_id]) {
+                await loadContactPublicKey(message.sender_id);
+              }
+              
+              let content;
+              try {
+                content = decryptMessage(message.encrypted_content, message.sender_id);
+                
+                // Save the processed message
+                const processedMessage = {
+                  id: message.id,
+                  sender_id: message.sender_id,
+                  content: content,
+                  timestamp: message.timestamp,
+                  isFromMe: isFromMe
+                };
+                
+                // Add to messages array for display
+                messages.push(processedMessage);
+                
+                // Save to contact messages
+                if (!contactMessages[groupChatId]) {
+                  contactMessages[groupChatId] = [];
+                }
+                contactMessages[groupChatId].push(processedMessage);
+              } catch (error) {
+                console.error('Error decrypting group message:', error);
+                content = '[Encrypted message - unable to decrypt]';
+              }
+            } catch (error) {
+              console.error('Error processing group message:', error);
+              // Continue with next message
+            }
+          }
+          
+          // Save contact messages to localStorage
+          saveContactMessages();
+          
+          // Render messages
+          renderMessages(messages);
         }
-        
-        // Scroll to bottom
-        scrollToBottom();
-        
       } catch (error) {
         console.error('Error loading group messages:', error);
         messagesContainer.innerHTML = `<div class="error-messages">Error: ${error.message}</div>`;
@@ -535,6 +747,20 @@ document.addEventListener('DOMContentLoaded', () => {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Failed to send message');
         }
+        
+        const messageData = await response.json();
+        
+        // Save the message locally
+        const chatId = currentChat.type === 'direct' ? 
+          currentChat.id : `group_${currentChat.id}`;
+        
+        saveMessage(chatId, {
+          id: messageData.id,
+          sender_id: user.id,
+          content: content,
+          timestamp: messageData.timestamp || new Date().toISOString(),
+          isFromMe: true
+        });
         
         // Clear the input
         messageInput.value = '';
@@ -707,6 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         
         // Combine nonce and encrypted message
+        // Combine nonce and encrypted message
         const fullMessage = new Uint8Array(nonce.length + encrypted.length);
         fullMessage.set(nonce);
         fullMessage.set(encrypted, nonce.length);
@@ -804,7 +1031,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     // Show a notification for a new message
-    function showMessageNotification(message) {
+    function showMessageNotification(message, decryptedContent) {
       try {
         let title, body;
         
@@ -818,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           
           title = `New message in ${group.name}`;
-          body = `${sender.username}: ...`;
+          body = `${sender.username}: ${truncateText(decryptedContent, 50)}`;
           
         } else {
           // Direct message
@@ -829,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           
           title = `New message from ${sender.username}`;
-          body = '...';
+          body = truncateText(decryptedContent, 50);
         }
         
         window.electronAPI.showNotification({ title, body });
@@ -838,10 +1065,116 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error showing notification:', error);
       }
     }
+    
+    // Save message to local storage
+    function saveMessage(chatId, message) {
+      if (!contactMessages[chatId]) {
+        contactMessages[chatId] = [];
+      }
+      
+      // Add message
+      contactMessages[chatId].push(message);
+      
+      // Keep only the most recent 100 messages per chat
+      if (contactMessages[chatId].length > 100) {
+        contactMessages[chatId] = contactMessages[chatId].slice(-100);
+      }
+      
+      // Save to localStorage
+      saveContactMessages();
+    }
+    
+    // Save contact messages to localStorage
+    function saveContactMessages() {
+      try {
+        localStorage.setItem('contactMessages', JSON.stringify(contactMessages));
+      } catch (error) {
+        console.error('Error saving contact messages to localStorage:', error);
+        // If localStorage is full, clear it and try again
+        if (error.name === 'QuotaExceededError') {
+          localStorage.clear();
+          localStorage.setItem('contactMessages', JSON.stringify(contactMessages));
+        }
+      }
+    }
+    
+    // Get last message for a chat
+    function getLastMessage(chatId) {
+      if (contactMessages[chatId] && contactMessages[chatId].length > 0) {
+        const messages = contactMessages[chatId];
+        return messages[messages.length - 1];
+      }
+      return null;
+    }
+    
+    // Increment unread message count
+    function incrementUnreadCount(chatId) {
+      if (!unreadMessages[chatId]) {
+        unreadMessages[chatId] = 0;
+      }
+      unreadMessages[chatId]++;
+      
+      // Save to localStorage
+      localStorage.setItem('unreadMessages', JSON.stringify(unreadMessages));
+    }
+    
+    // Mark chat as read
+    function markAsRead(chatId) {
+      if (unreadMessages[chatId]) {
+        unreadMessages[chatId] = 0;
+        localStorage.setItem('unreadMessages', JSON.stringify(unreadMessages));
+        
+        // Update UI
+        updateContactListUI();
+        updateGroupListUI();
+      }
+    }
+    
+    // Update contact list UI to reflect changes
+    function updateContactListUI() {
+      renderContactList();
+    }
+    
+    // Update group list UI to reflect changes
+    function updateGroupListUI() {
+      renderGroupList();
+    }
+    
+    // Get unread count for a chat
+    function getUnreadCount(chatId) {
+      return unreadMessages[chatId] || 0;
+    }
   
     // Helper function to format time for display
     function formatTime(date) {
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    // Helper function to format time ago
+    function formatTimeAgo(date) {
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000);
+      
+      if (diff < 60) return 'Just now';
+      if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+      
+      // For older messages, show the date
+      if (date.toDateString() === now.toDateString()) {
+        return formatTime(date);
+      } else if (now - date < 7 * 86400 * 1000) {
+        // Within the last week, show day name
+        return date.toLocaleDateString(undefined, { weekday: 'short' });
+      } else {
+        // Older messages, show date
+        return date.toLocaleDateString();
+      }
+    }
+    
+    // Helper function to truncate text
+    function truncateText(text, maxLength) {
+      if (!text) return '';
+      return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     }
   
     // Helper function to check if we're near the bottom of the messages container
@@ -858,6 +1191,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
     // Helper function to escape HTML special characters
     function escapeHtml(unsafe) {
+      if (!unsafe) return '';
       return unsafe
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
