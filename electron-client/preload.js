@@ -1,8 +1,6 @@
 // electron-client/preload.js
 
 const { contextBridge, ipcRenderer } = require('electron');
-// In your preload.js file, add this to the electronAPI object
-updateAdminStatus: (data) => ipcRenderer.invoke('update-admin-status', data);
 
 // Create a simple console logger for the renderer process
 const rendererLogger = {
@@ -47,6 +45,7 @@ contextBridge.exposeInMainWorld(
     deleteKeys: (data) => ipcRenderer.invoke('delete-keys', data),
     showNotification: (data) => ipcRenderer.invoke('show-notification', data),
     navigate: (data) => ipcRenderer.invoke('navigate', data),
+    updateAdminStatus: (data) => ipcRenderer.invoke('update-admin-status', data),
     logger: rendererLogger
   }
 );

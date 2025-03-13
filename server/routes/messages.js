@@ -76,6 +76,49 @@ router.get('/group/:groupId', (req, res) => {
   );
 });
 
+// Get group members with public keys
+router.get('/group-members/:groupId', authenticateToken, (req, res) => {
+  const currentUserId = req.user.userId;
+  const groupId = parseInt(req.params.groupId);
+  
+  if (isNaN(groupId)) {
+    return res.status(400).json({ error: 'Invalid group ID' });
+  }
+  
+  const db = req.app.locals.db;
+  
+  // First check if user is a member of the group
+  db.get('SELECT * FROM group_members WHERE group_id = ? AND user_id = ?', 
+    [groupId, currentUserId], 
+    (err, membership) => {
+      if (err) {
+        console.error('Database error checking group membership:', err.message);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+      
+      if (!membership) {
+        return res.status(403).json({ error: 'You are not a member of this group' });
+      }
+      
+      // Get all members of the group with their public key status
+      db.all(`
+        SELECT u.id, u.username, u.public_key IS NOT NULL as has_key 
+        FROM group_members gm
+        JOIN users u ON gm.user_id = u.id
+        WHERE gm.group_id = ?
+        ORDER BY u.username ASC
+      `, [groupId], (err, members) => {
+        if (err) {
+          console.error('Database error fetching group members:', err.message);
+          return res.status(500).json({ error: 'Internal server error' });
+        }
+        
+        res.json(members);
+      });
+    }
+  );
+});
+
 // Send a direct message
 router.post('/direct', (req, res) => {
   const senderId = req.user.userId;

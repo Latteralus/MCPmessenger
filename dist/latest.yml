@@ -1,8 +1,8 @@
 version: 1.0.0
 files:
   - url: MCP-Messenger-Setup-1.0.0.exe
-    sha512: 5RA+X4ywrLw5ka+BZvmNho3+NoQApLVQF+n0EcBlzBCSGYGSgGDj73hQBv2HFTO8T87OMyl0nK/9d5DMnJf64A==
-    size: 90859236
+    sha512: fohsNEXziXQQgML5JZjwWgF0ImM6qD0VWZSFOSeQ6gURSnEAK3xKtpUn9GKbWzjHiJH1O2GxRnQKnfj/nHMjDA==
+    size: 90882373
 path: MCP-Messenger-Setup-1.0.0.exe
-sha512: 5RA+X4ywrLw5ka+BZvmNho3+NoQApLVQF+n0EcBlzBCSGYGSgGDj73hQBv2HFTO8T87OMyl0nK/9d5DMnJf64A==
-releaseDate: '2025-03-13T01:36:06.188Z'
+sha512: fohsNEXziXQQgML5JZjwWgF0ImM6qD0VWZSFOSeQ6gURSnEAK3xKtpUn9GKbWzjHiJH1O2GxRnQKnfj/nHMjDA==
+releaseDate: '2025-03-13T03:05:18.101Z'

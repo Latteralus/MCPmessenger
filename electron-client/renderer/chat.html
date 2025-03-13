@@ -12,6 +12,10 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <h2>MCP Messenger</h2>
+                <div class="connection-status" id="connection-status">
+                    <span id="connection-status-indicator" class="status-indicator disconnected"></span>
+                    <span id="connection-status-text">Disconnected</span>
+                </div>
                 <div class="theme-toggle">
                     <input type="checkbox" id="theme-switch" class="theme-switch">
                     <label for="theme-switch" class="theme-label">Dark Mode</label>
@@ -29,6 +33,11 @@
                     <div id="admin-link" class="admin-link hidden">
                         <a href="#" id="admin-dashboard-link">Admin Dashboard</a>
                     </div>
+                </div>
+                
+                <!-- Connection Actions -->
+                <div class="connection-actions">
+                    <button id="reconnect-button" class="btn btn-sm">Reconnect</button>
                 </div>
                 
                 <!-- Contacts list -->
@@ -106,9 +115,44 @@
         </div>
     </div>
     
+    <!-- Connection Status Toast -->
+    <div id="connection-toast" class="connection-toast hidden">
+        <div id="connection-toast-message"></div>
+        <button id="connection-toast-close" class="connection-toast-close">&times;</button>
+    </div>
+    
+    <!-- Script includes -->
     <script src="assets/js/tweetnacl.min.js"></script>
     <script src="assets/js/tweetnacl-util.min.js"></script>
     <script src="assets/js/socket.io.min.js"></script>
-    <script src="assets/js/chat.js"></script>
+    
+    <!-- Module script for modern browsers -->
+    <script type="module">
+        import { initialize } from './assets/js/chat/chatApp.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initialize();
+            
+            // Listen for unread message updates
+            window.addEventListener('unreadMessagesUpdated', () => {
+                // Refresh contact list to show updated unread counts
+                import('./assets/js/chat/chatUI.js').then(({ renderContactList }) => {
+                    import('./assets/js/chat/chatApp.js').then(({ contacts }) => {
+                        renderContactList(contacts);
+                    });
+                });
+            });
+            
+            // Listen for unread group message updates
+            window.addEventListener('groupUnreadMessagesUpdated', () => {
+                // Refresh group list to show updated unread counts
+                import('./assets/js/chat/chatUI.js').then(({ renderGroupList }) => {
+                    import('./assets/js/chat/chatApp.js').then(({ groups }) => {
+                        renderGroupList(groups);
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
