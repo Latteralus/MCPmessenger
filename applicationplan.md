@@ -1,7 +1,7 @@
 # MCP Messenger Application Plan
 
 ## Project Overview
-MCP Messenger is a self-hosted, offline messenger application with end-to-end encryption designed for secure communication on local networks. The application consists of an Electron-based client and a Node.js server with Socket.IO for real-time communication and SQLite for data storage.
+MCP Messenger is a self-hosted, offline messenger application with end-to-end encryption designed for secure communication on local networks. The application consists of an Electron-based client and a Node.js server with Socket.IO for real-time communication and SQLite for data storage. The application will be designed only for Microsoft Windows based operating systems. The application will not be ported for use on a phone or cellular device. The application should be HIPAA compliant.
 
 ## Current Status - March 12, 2025
 
@@ -57,9 +57,6 @@ MCP Messenger is a self-hosted, offline messenger application with end-to-end en
 
 #### Long-term
 - Support for multiple servers in one client
-- Mobile application development
-- Voice and video call support
-- Screen sharing capabilities
 - Plugin system for extensibility
 
 ## Technical Architecture
@@ -99,7 +96,7 @@ MCP Messenger is a self-hosted, offline messenger application with end-to-end en
 
 ## Deployment Strategy
 - Self-hosted on local networks
-- Installable desktop client for Windows, macOS, and Linux
+- Installable desktop client for Windows
 - Simple server setup with minimal configuration
 - Default admin account for initial setup
 
@@ -120,8 +117,6 @@ MCP Messenger is a self-hosted, offline messenger application with end-to-end en
 - Develop backup and restore functionality
 
 ### Q4 2025
-- Begin mobile application development
-- Implement voice and video calls
 - Develop server federation capabilities
 
 ## Conclusion

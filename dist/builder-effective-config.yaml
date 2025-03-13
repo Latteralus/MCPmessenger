@@ -7,6 +7,7 @@ files:
   - filter:
       - electron-client/**/*
       - package.json
+      - utils/**/*
 extraResources:
   - from: electron-client/renderer
     to: renderer

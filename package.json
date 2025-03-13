@@ -14,7 +14,8 @@
     "build": "electron-builder",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux"
+    "build:linux": "electron-builder --linux",
+    "clean-logs": "node scripts/clean-logs.js"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +29,9 @@
     "socket.io": "^4.8.1",
     "sqlite3": "^5.1.7",
     "tweetnacl": "^1.0.3",
-    "tweetnacl-util": "^0.15.1"
+    "tweetnacl-util": "^0.15.1",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
@@ -44,7 +47,8 @@
     },
     "files": [
       "electron-client/**/*",
-      "package.json"
+      "package.json",
+      "utils/**/*"
     ],
     "extraResources": [
       {

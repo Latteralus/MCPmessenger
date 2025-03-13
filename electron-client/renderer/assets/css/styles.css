@@ -658,4 +658,42 @@
     html {
       font-size: 12px;
     }
+    /* Add to styles.css */
+
+/* Error notification */
+.error-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #e74c3c;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  transition: opacity 0.5s;
+}
+
+.admin-link {
+  margin-top: 8px;
+  padding: 4px 0;
+}
+
+.admin-link a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  background-color: #e74c3c;
+  padding: 3px 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.admin-link a:hover {
+  background-color: #c0392b;
+}
+
+.error-notification.fade-out {
+  opacity: 0;
+}
   }

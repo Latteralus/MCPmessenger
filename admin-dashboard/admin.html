@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MCP Messenger - Admin Dashboard</title>
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
 </head>
 <body>
     <div class="login-container" id="login-container">
@@ -35,12 +35,23 @@
     <div class="admin-container hidden" id="admin-container">
         <div class="admin-header">
             <h1>MCP Messenger Admin Dashboard</h1>
-            <button id="logout-button" class="btn btn-secondary">Logout</button>
+            <div class="header-actions">
+                <div id="connection-status" class="connection-status">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text">Connected</span>
+                </div>
+                <button id="logout-button" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+        
+        <div class="notification-area" id="notification-area">
+            <!-- Notifications will be dynamically inserted here -->
         </div>
         
         <div class="admin-tabs">
             <div class="admin-tab active" data-tab="users">Users</div>
             <div class="admin-tab" data-tab="groups">Groups</div>
+            <div class="admin-tab" data-tab="system">System</div>
         </div>
         
         <div class="admin-content">
@@ -51,23 +62,25 @@
                     <button id="create-user-btn" class="btn btn-primary">Create User</button>
                 </div>
                 
-                <table class="admin-table" id="users-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Admin</th>
-                            <th>Has Key</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="6">Loading users...</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table class="admin-table" id="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Admin</th>
+                                <th>Has Key</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="loading-cell">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
             <!-- Groups Tab -->
@@ -76,23 +89,91 @@
                     <h2>Group Management</h2>
                 </div>
                 
-                <table class="admin-table" id="groups-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Created By</th>
-                            <th>Members</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="6">Loading groups...</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table class="admin-table" id="groups-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Created By</th>
+                                <th>Members</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="loading-cell">Loading groups...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- System Tab -->
+            <div class="tab-content" id="system-tab">
+                <div class="content-header">
+                    <h2>System Information</h2>
+                    <button id="refresh-system-btn" class="btn btn-primary">Refresh</button>
+                </div>
+                
+                <div class="system-info-grid">
+                    <div class="system-info-card">
+                        <h3>Application</h3>
+                        <div class="info-item">
+                            <span class="info-label">Version:</span>
+                            <span class="info-value" id="app-version">1.0.0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Environment:</span>
+                            <span class="info-value" id="app-environment">Production</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Uptime:</span>
+                            <span class="info-value" id="app-uptime">0h 0m 0s</span>
+                        </div>
+                    </div>
+                    
+                    <div class="system-info-card">
+                        <h3>Database</h3>
+                        <div class="info-item">
+                            <span class="info-label">User Count:</span>
+                            <span class="info-value" id="db-user-count">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Group Count:</span>
+                            <span class="info-value" id="db-group-count">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Message Count:</span>
+                            <span class="info-value" id="db-message-count">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="system-info-card">
+                        <h3>Server</h3>
+                        <div class="info-item">
+                            <span class="info-label">Node.js:</span>
+                            <span class="info-value" id="server-node-version">v18.x</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Platform:</span>
+                            <span class="info-value" id="server-platform">Linux</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Requests Served:</span>
+                            <span class="info-value" id="server-requests">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="system-info-card">
+                        <h3>Log Files</h3>
+                        <div class="log-list" id="log-files-list">
+                            <div class="loading-cell">Loading log files...</div>
+                        </div>
+                        <button id="clear-logs-btn" class="btn btn-warning">Clear Old Logs</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -136,20 +217,22 @@
             <h2>Group Members</h2>
             <h3 id="group-name-title"></h3>
             
-            <table class="admin-table" id="members-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Joined</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="3">Loading members...</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table class="admin-table" id="members-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="loading-cell">Loading members...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             
             <div class="form-actions">
                 <button type="button" id="close-members-modal" class="btn btn-primary">Close</button>
@@ -170,6 +253,22 @@
         </div>
     </div>
     
-    <script src="admin.js"></script>
+    <!-- View Log Modal -->
+    <div id="log-modal" class="modal hidden">
+        <div class="modal-content modal-lg">
+            <h2 id="log-modal-title">Log File Content</h2>
+            
+            <div class="log-viewer">
+                <pre id="log-content" class="log-content"></pre>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" id="download-log" class="btn btn-primary">Download</button>
+                <button type="button" id="close-log-modal" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="assets/js/admin.js"></script>
 </body>
 </html>

@@ -1199,6 +1199,66 @@ document.addEventListener('DOMContentLoaded', () => {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
     }
+
+    // Add this to the initialize function in chat.js
+// after loading user keys
+
+// Check if user is admin and show admin link if needed
+function checkAdminStatus() {
+  const adminLink = document.getElementById('admin-link');
+  if (!adminLink) return;
+  
+  // Get stored user data
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  
+  if (user && user.isAdmin) {
+    // User is admin, show the link
+    adminLink.classList.remove('hidden');
+    localStorage.setItem('userIsAdmin', 'true');
+    
+    // Add click event to admin link
+    const adminDashboardLink = document.getElementById('admin-dashboard-link');
+    if (adminDashboardLink) {
+      adminDashboardLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Navigating to admin dashboard');
+        window.electronAPI.navigate({ page: 'admin.html' })
+          .catch(error => {
+            console.error('Navigation error:', error);
+            showErrorMessage('Failed to navigate to admin dashboard: ' + error.message);
+          });
+      });
+    }
+  } else {
+    // User is not admin, hide the link
+    adminLink.classList.add('hidden');
+    localStorage.setItem('userIsAdmin', 'false');
+  }
+  
+  // Update the menu in the main process
+  window.electronAPI.updateAdminStatus({ 
+    isAdmin: user && user.isAdmin 
+  }).catch(error => {
+    console.error('Error updating admin status:', error);
+  });
+}
+
+// Call this function as part of the initialization
+async function initialize() {
+  try {
+    // Existing initialization code...
+    
+    // After loading user keys:
+    await loadUserKeys();
+    
+    // Check admin status
+    checkAdminStatus();
+    
+    // Rest of initialization...
+  } catch (error) {
+    // Error handling...
+  }
+}
   
     // Start the application
     initialize();
